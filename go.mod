@@ -19,3 +19,5 @@ require (
 	google.golang.org/api v0.45.0
 	gopkg.in/yaml.v2 v2.4.0
 )
+
+replace github.com/mattn/go-sqlite3 => ../go-sqlite3

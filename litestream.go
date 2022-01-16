@@ -13,6 +13,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
+
+	"github.com/mattn/go-sqlite3"
 )
 
 // Naming constants.
@@ -50,6 +53,18 @@ var (
 	// LogFlags are the flags passed to log.New().
 	LogFlags = 0
 )
+
+func init() {
+	sql.Register("litestream-sqlite3", &sqlite3.SQLiteDriver{
+		ConnectHook: func(conn *sqlite3.SQLiteConn) error {
+			arg := int(1)
+			if rc := conn.FileControl("main", sqlite3.SQLITE_FCNTL_PERSIST_WAL, unsafe.Pointer(&arg)); rc != 0 {
+				return fmt.Errorf("sqlite3_file_control(SQLITE_FCNTL_PERSIST_WAL) error: code=%d", rc)
+			}
+			return nil
+		},
+	})
+}
 
 // SnapshotIterator represents an iterator over a collection of snapshot metadata.
 type SnapshotIterator interface {
